@@ -3,13 +3,15 @@ Reproducible Research: Peer Assessment 1
 
 ## Loading and preprocessing the data
 Loading the data from the activity.zip file:
-```{r}
+
+```r
 setwd("~/workspace/RepData_PeerAssessment1/")
 activity_file <- unz("activity.zip", "activity.csv")
 activity <- read.csv(activity_file)
 ```
 Transforming the 'date' and 'interval' columns into a date and time POSIXlt format, named 'datetime':
-```{r}
+
+```r
 activity$hour <- as.character(activity$interval)
 activity$hour <- sapply(activity$hour, function(x) {
     if (nchar(x) == 1) {
@@ -25,8 +27,9 @@ activity$hour <- sapply(activity$hour, function(x) {
 activity$datetime <- paste(activity$date, activity$hour)
 activity$datetime <- strptime(activity$datetime, "%Y-%m-%d %H%M", tz="UTC")
 ```
-Extracting the data farame that is needed for the analysis, named 'data':
-```{r}
+Extracting the datafarame that is needed for the analysis, named 'data':
+
+```r
 data <- activity[, c("steps", "datetime")]
 ```
 
