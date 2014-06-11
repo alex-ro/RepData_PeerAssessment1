@@ -96,7 +96,7 @@ ggplot(total_steps_2, aes(x=day, y=steps)) +
     scale_x_discrete(labels=substring(total_steps_2$day, 6)) +
     xlab("day") +
     ylab("total steps") +
-    ggtitle("Total steps/day")
+    ggtitle("Total steps/day, data with missing values filled")
 ```
 
 The code to calculate the mean and median total number of steps taken per day for the new data set:

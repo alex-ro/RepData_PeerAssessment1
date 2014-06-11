@@ -112,7 +112,7 @@ ggplot(total_steps_2, aes(x=day, y=steps)) +
     scale_x_discrete(labels=substring(total_steps_2$day, 6)) +
     xlab("day") +
     ylab("total steps") +
-    ggtitle("Total steps/day")
+    ggtitle("Total steps/day, data with missing values filled")
 ```
 
 ![plot of chunk total_number_of_steps_nonas](figure/total_number_of_steps_nonas.png) 
