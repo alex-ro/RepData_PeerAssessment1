@@ -71,8 +71,8 @@ Time series plot of the 5-minute interval (x-axis) and the average number of ste
 
 
 ```r
-data <- data[complete.cases(data$steps),]
-minute_steps <- aggregate(data$steps, by=list(data$interval), FUN=mean)
+data_nona <- data[complete.cases(data$steps),]
+minute_steps <- aggregate(data_nona$steps, by=list(data_nona$interval), FUN=mean)
 names(minute_steps) <- c("interval", "steps")
 max_steps <- minute_steps[minute_steps$steps == max(minute_steps$steps), "interval"]
 ggplot(minute_steps, aes(x=interval, y=steps)) +
@@ -89,7 +89,50 @@ Which 5-minute interval, on average across all the days in the dataset, contains
 The maximum number of steps 5-minute interval is 835
 
 ### Imputing missing values
+The total number of rows with missing values in the dataset is 2304 out of 17568 total rows.  
+Create a new dataset that is equal to the original dataset but with the missing data filled in. The strategy for filling in the NA's is that for every interval with NA steps to fill it with the mean for that interval.
 
+```r
+newdata <- data
+for (i in c(1:nrow(newdata))) {
+    if (is.na(newdata[i, "steps"])) {
+        newdata[i, "steps"] <- minute_steps[minute_steps$interval == newdata[i, "interval"], "steps"]
+    }
+}
+```
+The histogram of the total number of steps taken each day for the new data set, with the missing values filled:
 
+```r
+total_steps_2 <- aggregate(newdata$steps, by=list(newdata$date), FUN=sum)
+names(total_steps_2) <- c("day", "steps")
+ggplot(total_steps_2, aes(x=day, y=steps)) +
+    geom_bar(stat="identity", fill="blue") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle=90, hjust=1, vjust=0.5)) +
+    scale_x_discrete(labels=substring(total_steps_2$day, 6)) +
+    xlab("day") +
+    ylab("total steps") +
+    ggtitle("Total steps/day")
+```
+
+![plot of chunk total_number_of_steps_nonas](figure/total_number_of_steps_nonas.png) 
+
+The code to calculate the mean and median total number of steps taken per day for the new data set:
+
+```r
+mean_steps_per_day_2 <- mean(total_steps_2$steps, na.rm=TRUE)
+median_steps_per_day_2 <- median(total_steps_2$steps, na.rm=TRUE)
+```
+and the values are:
+- mean toatal number of steps is 10766
+- median toatal number of steps is 10766  
+
+The old values of the mean and median total number of steps taken per day for the data set with missing values are: 
+- mean toatal number of steps is 10766
+- median toatal number of steps is 10765  
+
+So, basically there is no change. The explanation is the following:
+- the mean and median were calculated ignoring the missing values (NA's)
+- the strategy used to fill the NA's was to use the mean for every interval and doing so the total mean didn't change. You can see that the total median is changed by 1 as a result of this strategy.
 
 ### Are there differences in activity patterns between weekdays and weekends?
