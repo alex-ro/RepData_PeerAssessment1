@@ -9,7 +9,7 @@ setwd("~/workspace/RepData_PeerAssessment1/")
 activity_file <- unz("activity.zip", "activity.csv")
 activity <- read.csv(activity_file)
 ```
-Transforming the 'date' and 'interval' columns into a date and time POSIXlt format, named 'datetime':
+Transforming the 'date' and 'interval' columns into a date and time POSIXlt format, named 'datetime'. This 'datetime' column is used in solving the last question.
 
 ```r
 activity$hour <- as.character(activity$interval)
@@ -67,7 +67,7 @@ and the values are:
 - median toatal number of steps is 10765
 
 ### What is the average daily activity pattern?
-Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
+Time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis):
 
 
 ```r
@@ -76,7 +76,7 @@ minute_steps <- aggregate(data_nona$steps, by=list(data_nona$interval), FUN=mean
 names(minute_steps) <- c("interval", "steps")
 max_steps <- minute_steps[minute_steps$steps == max(minute_steps$steps), "interval"]
 ggplot(minute_steps, aes(x=interval, y=steps)) +
-    geom_line() +
+    geom_line(color="blue") +
     geom_vline(xintercept = max_steps, colour="green", linetype = "longdash") +
     scale_x_continuous(breaks=c(0, 500, 1000, 1500, 2000, max_steps)) +
     theme_bw() +
@@ -86,7 +86,7 @@ ggplot(minute_steps, aes(x=interval, y=steps)) +
 ![plot of chunk 5_minute_interval_time_series](figure/5_minute_interval_time_series.png) 
 
 Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?  
-The maximum number of steps 5-minute interval is 835
+The maximum number of steps 5-minute interval is 835 and the number of steps is 206.1698.
 
 ### Imputing missing values
 The total number of rows with missing values in the dataset is 2304 out of 17568 total rows.  
@@ -136,3 +136,38 @@ So, basically there is no change. The explanation is the following:
 - the strategy used to fill the NA's was to use the mean for every interval and doing so the total mean didn't change. You can see that the total median is changed by 1 as a result of this strategy.
 
 ### Are there differences in activity patterns between weekdays and weekends?
+Create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+```r
+newdata$weekday <- newdata$datetime$wday
+newdata$weekday <- sapply(newdata$weekday, function(x) {
+    if (x %in% c(0, 6)) {
+        "weekend"
+    } else {
+        "weekday"
+    }
+})
+newdata$weekday <- as.factor(newdata$weekday)
+summary(newdata$weekday)
+```
+
+```
+## weekday weekend 
+##   12960    4608
+```
+
+Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
+
+```r
+average_steps <- aggregate(newdata$steps, by=list(newdata$weekday, newdata$interval), FUN=mean)
+names(average_steps) <- c("weekday", "interval", "steps")
+ggplot(average_steps, aes(x=interval, y=steps)) +
+    geom_line(color="blue") +
+    facet_grid(weekday ~ .) +
+    theme_bw() +
+    ylab("number of steps") +
+    ggtitle("Average steps/day for every interval") +
+    theme(strip.background = element_rect(fill="lightblue"))
+```
+
+![plot of chunk average_steps_days](figure/average_steps_days.png) 
